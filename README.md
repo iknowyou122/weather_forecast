@@ -1,6 +1,6 @@
 # Weather Forecast App
 
-一個遵循 **Clean Architecture** 與 **MVI (Model-View-Intent)** 設計模式，使用 Kotlin、Jetpack Compose 建置的現代化 Android 天氣預報應用程式。
+**Clean Architecture** 與 **MVI (Model-View-Intent)** 設計模式，使用 Kotlin、Jetpack Compose 建置的現代化 Android 天氣預報應用程式。
 
 ---
 
@@ -15,11 +15,11 @@
 - **多城市支援**：預設提供全球 10+ 個熱門城市（台北、東京、倫敦等）。
 - **即時搜尋**：支援城市名稱搜尋，快速切換感興趣的地點。
 
-### 🔋 強韌性與效能
+### 🔋 效能
 - **離線優先 (Offline-first)**：利用 **Room** 資料庫實作快取機制，在無網路環境下仍能查看最後更新的資料。
 - **錯誤處理機制**：針對 API Key 缺失、網路斷線等異常提供精確的 UI 提示與重試功能。
 
-### 🎨 現代化視覺 (Fancy UI)
+### 🎨 UI
 - **Material 3**：全面採用 Material Design 3 規範與組件。
 - **視覺優化**：主畫面採用 **漸層背景** (Linear Gradient) 營造天空感，並搭配 **Glassmorphism** 設計提升視覺層次。
 
@@ -53,7 +53,6 @@
 ```properties
 WEATHER_API_KEY=your_api_key_here
 ```
-*注意：本專案已實作 API Key 自動清理功能，會排除多餘的空格。*
 
 ### 2. 環境要求
 - **Android Studio**: Hedgehog (2023.1.1+)
@@ -76,7 +75,7 @@ WEATHER_API_KEY=your_api_key_here
 - **Domain 層**：測試 Use Cases 的業務邏輯分支。
 - **Presentation 層**：測試 ViewModel 的狀態機轉換與 Effect 發送。
 - **Data 層**：測試 Repository 的快取策略 (Cache-then-Network) 與異常轉換。
-
+a
 **執行測試：**
 ```bash
 ./gradlew test
@@ -98,8 +97,3 @@ WEATHER_API_KEY=your_api_key_here
         ├── data     # RepositoryImpl, Mappers, LocalData
         └── presentation # UI (Compose), ViewModel (MVI)
 ```
-
----
-
-## 授權
-MIT License
