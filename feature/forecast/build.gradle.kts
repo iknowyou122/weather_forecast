@@ -46,6 +46,7 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

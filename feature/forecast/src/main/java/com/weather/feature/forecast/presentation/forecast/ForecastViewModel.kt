@@ -127,7 +127,23 @@ class ForecastViewModel @Inject constructor(
 
     private fun mapError(error: Throwable): UiError {
         return when (error) {
-            is IOException -> UiError.NetworkUnavailable
+            is IOException -> {
+                val message = error.message ?: ""
+                if (message.startsWith("HTTP_ERROR:")) {
+                    val parts = message.split(":")
+                    val code = parts.getOrNull(1)?.toIntOrNull() ?: 0
+                    val msg = parts.getOrNull(2) ?: "Unknown API Error"
+                    val details = parts.getOrNull(3) ?: ""
+                    
+                    if (code == 401) {
+                        UiError.InvalidApiKey
+                    } else {
+                        UiError.HttpError(code, "$msg $details")
+                    }
+                } else {
+                    UiError.NetworkUnavailable
+                }
+            }
             is HttpException -> UiError.HttpError(error.code(), error.message())
             else -> UiError.UnknownError(error.message)
         }

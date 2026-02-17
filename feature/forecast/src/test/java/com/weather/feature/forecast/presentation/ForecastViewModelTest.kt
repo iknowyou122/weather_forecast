@@ -56,7 +56,7 @@ class ForecastViewModelTest {
 
     private val testForecast = Forecast(
         city = testCity,
-        updatedAtEpochSeconds = 1704067200,
+        updatedAtEpochSeconds = 1704067200L,
         current = CurrentWeather(
             tempC = 25.0,
             tempMinC = 20.0,
@@ -68,7 +68,7 @@ class ForecastViewModelTest {
         ),
         daily = List(7) { index ->
             DailyWeather(
-                dateEpochSeconds = 1704067200 + index * 86400,
+                dateEpochSeconds = 1704067200L + index * 86400L,
                 tempMinC = 18.0 + index,
                 tempMaxC = 26.0 + index,
                 condition = "Sunny",
@@ -195,6 +195,28 @@ class ForecastViewModelTest {
         val state = viewModel.state.value
         assertNotNull(state.error)
         assertNull(state.forecast)
+    }
+
+    @Test
+    fun `error state should be InvalidApiKey when API key is invalid`() = runTest {
+        // Given
+        val apiKeyError = java.io.IOException("HTTP_ERROR:401:Unauthorized")
+        every { getForecastUseCase(testCity) } returns flowOf(
+            ForecastResult.Error(apiKeyError)
+        )
+
+        // Reset viewModel to trigger new collection with error
+        viewModel = ForecastViewModel(
+            getForecastUseCase = getForecastUseCase,
+            getSelectedCityUseCase = getSelectedCityUseCase,
+            selectCityUseCase = selectCityUseCase,
+            dispatchers = dispatchers
+        )
+        advanceUntilIdle()
+
+        // Then
+        val state = viewModel.state.value
+        assertEquals(com.weather.core.common.UiError.InvalidApiKey, state.error)
     }
 
     @Test

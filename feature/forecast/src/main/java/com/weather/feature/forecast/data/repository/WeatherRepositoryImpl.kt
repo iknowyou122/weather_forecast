@@ -66,31 +66,82 @@ class WeatherRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchFromRemote(city: City): Forecast = coroutineScope {
-        val currentWeatherDeferred = async {
-            apiService.getCurrentWeather(city.lat, city.lon, apiKey = apiKey)
-        }
-        val forecastDeferred = async {
-            apiService.getFiveDayForecast(city.lat, city.lon, apiKey = apiKey)
+    private suspend fun fetchFromRemote(city: City): Forecast {
+        val trimmedKey = apiKey.trim()
+
+        if (trimmedKey.isEmpty()) {
+            throw IOException("HTTP_ERROR:401:Unauthorized:API_KEY_MISSING")
         }
 
-        val currentResponse = currentWeatherDeferred.await()
-        val forecastResponse = forecastDeferred.await()
+                val currentResponse = try {
 
-        if (currentResponse.isSuccessful && forecastResponse.isSuccessful) {
-            val currentBody = currentResponse.body()
-            val forecastBody = forecastResponse.body()
-            
-            if (currentBody != null && forecastBody != null) {
-                mapToDomain(city, currentBody, forecastBody)
-            } else {
-                throw IOException("Empty response body")
+                    apiService.getCurrentWeather(city.lat, city.lon, apiKey = trimmedKey)
+
+                } catch (e: Exception) {
+
+                    throw IOException("CurrentWeather API call failed: ${e.message}", e)
+
+                }
+
+                
+
+                if (!currentResponse.isSuccessful) {
+
+                    val code = currentResponse.code()
+
+                    val message = currentResponse.message()
+
+                    val errorBody = currentResponse.errorBody()?.string()
+
+                    throw IOException("HTTP_ERROR:$code:$message:$errorBody")
+
+                }
+
+                
+
+                val forecastResponse = try {
+
+                    apiService.getFiveDayForecast(city.lat, city.lon, apiKey = trimmedKey)
+
+                } catch (e: Exception) {
+
+                    throw IOException("FiveDayForecast API call failed: ${e.message}", e)
+
+                }
+
+        
+
+                if (forecastResponse.isSuccessful) {
+
+                    val currentBody = currentResponse.body()
+
+                    val forecastBody = forecastResponse.body()
+
+                    
+
+                    if (currentBody != null && forecastBody != null) {
+
+                        return mapToDomain(city, currentBody, forecastBody)
+
+                    } else {
+
+                        throw IOException("Empty response body: current=${currentBody == null}, forecast=${forecastBody == null}")
+
+                    }
+
+                } else {
+
+                    val code = forecastResponse.code()
+
+                    val message = forecastResponse.message()
+
+                    val errorBody = forecastResponse.errorBody()?.string()
+
+                    throw IOException("HTTP_ERROR:$code:$message:$errorBody")
+
+                }
+
             }
-        } else {
-            val code = if (!currentResponse.isSuccessful) currentResponse.code() else forecastResponse.code()
-            throw IOException("HTTP $code")
-        }
-    }
 
     private suspend fun kotlinx.coroutines.flow.FlowCollector<ForecastResult>.handleError(
         error: Throwable,

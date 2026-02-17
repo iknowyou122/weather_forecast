@@ -249,7 +249,8 @@ private fun ErrorContent(
         verticalArrangement = Arrangement.Center
     ) {
         val message = when (error) {
-            is com.weather.core.common.UiError.NetworkUnavailable -> "網路連線失敗"
+            is com.weather.core.common.UiError.NetworkUnavailable -> "網路連線失敗，請檢查網路設定"
+            is com.weather.core.common.UiError.InvalidApiKey -> "API 金鑰無效或未設定，請在 local.properties 中設定 WEATHER_API_KEY"
             is com.weather.core.common.UiError.HttpError -> "伺服器錯誤 (${error.code})"
             is com.weather.core.common.UiError.ParsingError -> "資料解析錯誤"
             is com.weather.core.common.UiError.UnknownError -> "發生錯誤: ${error.message}"

@@ -45,7 +45,7 @@ class GetForecastUseCaseTest {
         ),
         daily = List(7) { index ->
             DailyWeather(
-                dateEpochSeconds = 1704067200 + index * 86400,
+                dateEpochSeconds = 1704067200 + index * 86400L,
                 tempMinC = 18.0 + index,
                 tempMaxC = 26.0 + index,
                 condition = "Sunny",

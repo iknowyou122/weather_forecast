@@ -1,223 +1,105 @@
 # Weather Forecast App
 
-一個使用 Kotlin、Jetpack Compose 和 Clean Architecture 建置的 Android 天氣預報應用程式。
+一個遵循 **Clean Architecture** 與 **MVI (Model-View-Intent)** 設計模式，使用 Kotlin、Jetpack Compose 建置的現代化 Android 天氣預報應用程式。
 
-## 功能
+---
 
-- **今日天氣預報**: 顯示目前溫度、天氣狀況、最高/最低溫、濕度和風速
-- **7 天預報**: 顯示未來 7 天的天氣預報
-- **城市切換**: 提供 10+ 個城市可供選擇
-- **搜尋功能**: 支援搜尋城市名稱
-- **離線支援**: 使用 Room 資料庫快取天氣資料
-- **錯誤處理**: 網路錯誤時顯示適當的錯誤訊息和重試機制
+## 🌟 核心功能
 
-## 技術架構
+### 🌤️ 天氣預報
+- **今日天氣詳情**：顯示目前的溫度、天氣狀況、最高/最低溫、濕度及風速。
+- **7 天氣象預報**：提供未來一週的天氣趨勢，幫助使用者提前規劃。
+- **動態天氣圖示**：透過 **Coil** 庫串接 OpenWeatherMap 官方圖示，視覺化天氣狀況。
 
-### 架構模式
-- **Clean Architecture**: 分層為 presentation、domain、data
-- **MVI (Model-View-Intent)**: 單向資料流
-- **Repository Pattern**: 抽象資料來源
+### 🏙️ 城市管理
+- **多城市支援**：預設提供全球 10+ 個熱門城市（台北、東京、倫敦等）。
+- **即時搜尋**：支援城市名稱搜尋，快速切換感興趣的地點。
 
-### 技術棧
-| 類別 | 技術 |
-|------|------|
-| 語言 | Kotlin |
-| UI | Jetpack Compose |
-| 依賴注入 | Hilt |
-| 非同步 | Coroutines + Flow |
-| 網路 | Retrofit + OkHttp |
-| 資料庫 | Room |
-| 圖片 | Coil |
+### 🔋 強韌性與效能
+- **離線優先 (Offline-first)**：利用 **Room** 資料庫實作快取機制，在無網路環境下仍能查看最後更新的資料。
+- **錯誤處理機制**：針對 API Key 缺失、網路斷線等異常提供精確的 UI 提示與重試功能。
 
-### 模組結構
-```
-├── app                     # 應用程式入口
-├── core
-│   ├── common             # 通用工具 (Result, Dispatchers)
-│   ├── network            # Retrofit, API Service, DTO
-│   └── database           # Room Database, DAO, Entities
-└── feature
-    └── forecast           # 天氣預報功能 (Domain + Data + Presentation)
-```
+### 🎨 現代化視覺 (Fancy UI)
+- **Material 3**：全面採用 Material Design 3 規範與組件。
+- **視覺優化**：主畫面採用 **漸層背景** (Linear Gradient) 營造天空感，並搭配 **Glassmorphism** 設計提升視覺層次。
 
-## 專案結構
+---
 
-```
-app/
-├── src/main/java/com/weather/weather_forecast/
-│   ├── MainActivity.kt           # 主 Activity
-│   ├── WeatherApplication.kt     # Hilt Application
-│   ├── di/
-│   │   └── AppModule.kt          # 應用程式層級 DI
-│   └── ui/theme/
-│       └── Theme.kt              # Compose 主題
+## 🛠️ 技術架構
 
-core/common/
-├── src/main/java/com/weather/core/common/
-│   ├── Result.kt                 # 泛型 Result 類型
-│   ├── DispatchersProvider.kt    # Coroutine Dispatchers
-│   ├── UiError.kt               # UI 錯誤定義
-│   └── di/
-│       └── CommonModule.kt       # DI Module
+本專案嚴格遵循 **Clean Architecture**，將程式碼切分為獨立的模組，確保高度的可測試性與可維護性。
 
-core/network/
-├── src/main/java/com/weather/core/network/
-│   ├── api/
-│   │   └── WeatherApiService.kt  # Retrofit API
-│   ├── dto/
-│   │   └── OneCallResponse.kt   # API DTOs
-│   └── di/
-│       └── NetworkModule.kt     # 網路 DI
+### 模組切分
+- **`:app`**：應用程式入口，處理 Hilt 注入與導航管理。
+- **`:core`**
+    - `network`: Retrofit 配置、API 定義與 DTO。
+    - `database`: Room 設定、DAO 與 Entity。
+    - `common`: 共用工具、Dispatcher 提供者與泛型 Result 類。
+- **`:feature:forecast`**：天氣預報核心功能模組，包含完整的 Domain、Data、Presentation 層。
 
-core/database/
-├── src/main/java/com/weather/core/database/
-│   ├── WeatherDatabase.kt        # Room Database
-│   ├── dao/
-│   │   └── ForecastDao.kt       # Data Access Objects
-│   ├── entity/
-│   │   ├── CachedForecastEntity.kt
-│   │   └── CachedDailyWeatherEntity.kt
-│   └── di/
-│       └── DatabaseModule.kt    # 資料庫 DI
+### MVI 單向資料流
+- **Intent**: 使用者動作（如 `Refresh`, `SelectCity`）。
+- **State**: UI 狀態的單一來源 (Single Source of Truth)，確保狀態同步。
+- **Effect**: 一次性事件（如 `NavigateToCityList`, `ShowToast`）。
 
-feature/forecast/
-├── src/main/java/com/weather/feature/forecast/
-│   ├── domain/
-│   │   ├── model/               # Domain Models
-│   │   │   ├── City.kt
-│   │   │   ├── Forecast.kt
-│   │   │   ├── CurrentWeather.kt
-│   │   │   └── DailyWeather.kt
-│   │   ├── repository/          # Repository Interfaces
-│   │   │   ├── WeatherRepository.kt
-│   │   │   └── CityRepository.kt
-│   │   └── usecase/             # Use Cases
-│   │       ├── GetForecastUseCase.kt
-│   │       ├── GetCitiesUseCase.kt
-│   │       ├── GetSelectedCityUseCase.kt
-│   │       └── SelectCityUseCase.kt
-│   ├── data/
-│   │   ├── local/
-│   │   │   └── CityLocalDataSource.kt
-│   │   ├── mapper/
-│   │   │   └── ForecastMapper.kt
-│   │   ├── repository/
-│   │   │   ├── WeatherRepositoryImpl.kt
-│   │   │   └── CityRepositoryImpl.kt
-│   │   └── di/
-│   │       ├── RepositoryModule.kt
-│   │       └── ForecastModule.kt
-│   └── presentation/
-│       ├── forecast/
-│       │   ├── ForecastContract.kt      # MVI State/Intent/Effect
-│       │   ├── ForecastViewModel.kt
-│       │   └── ForecastScreen.kt        # Compose UI
-│       ├── citylist/
-│       │   ├── CityListContract.kt
-│       │   ├── CityListViewModel.kt
-│       │   └── CityListScreen.kt
-│       └── navigation/
-│           ├── ForecastRoutes.kt
-│           └── ForecastNavHost.kt
-```
+---
 
-## API Key 設定
+## 🚀 開發與安裝
 
-此應用程式使用 [OpenWeatherMap](https://openweathermap.org/) API。您需要取得 API Key：
+### 1. API Key 設定
+本專案使用 [OpenWeatherMap API](https://openweathermap.org/)。
 
-### 1. 取得 API Key
-1. 前往 [OpenWeatherMap](https://home.openweathermap.org/users/sign_up) 註冊帳號
-2. 登入後前往 API Keys 頁面
-3. 複製您的 API Key
-
-### 2. 設定 API Key
-
-在專案根目錄建立 `local.properties` 檔案：
-
+請在專案根目錄的 `local.properties` 檔案中加入您的金鑰：
 ```properties
 WEATHER_API_KEY=your_api_key_here
 ```
+*注意：本專案已實作 API Key 自動清理功能，會排除多餘的空格。*
 
-**注意**: `local.properties` 不應該提交到 Git。專案 `.gitignore` 已設定忽略此檔案。
+### 2. 環境要求
+- **Android Studio**: Hedgehog (2023.1.1+)
+- **JDK**: 17
+- **Gradle**: 8.7.3
 
-## 執行專案
-
-### 需求
-- Android Studio Hedgehog (2023.1.1) 或更新版本
-- JDK 17
-- Android SDK 34
-
-### 步驟
-1. Clone 專案
+### 3. 編譯與執行
 ```bash
-git clone <repository-url>
-cd weather_forecast
+# 同步 Gradle 後直接在 Android Studio 點擊 Run
+# 或使用 CLI 編譯
+./gradlew assembleDebug
 ```
 
-2. 設定 API Key（見上方說明）
+---
 
-3. 開啟專案
+## 🧪 測試涵蓋範圍
+
+專案實作了完整的單元測試，涵蓋各個層級的業務邏輯。
+
+- **Domain 層**：測試 Use Cases 的業務邏輯分支。
+- **Presentation 層**：測試 ViewModel 的狀態機轉換與 Effect 發送。
+- **Data 層**：測試 Repository 的快取策略 (Cache-then-Network) 與異常轉換。
+
+**執行測試：**
 ```bash
-# 或使用 Android Studio 開啟
-```
-
-4. 建置並執行
-```bash
-./gradlew :app:assembleDebug
-```
-
-或使用 Android Studio 的 Run 按鈕。
-
-## 執行測試
-
-```bash
-# 執行所有測試
 ./gradlew test
-
-# 執行特定模組測試
-./gradlew :feature:forecast:test
 ```
 
-## 支援的城市
+---
 
-預設支援 10 個城市：
-1. Taipei, TW
-2. Tokyo, JP
-3. Naha, JP
-4. London, GB
-5. New York, US
-6. San Francisco, US
-7. Los Angeles, US
-8. Berlin, DE
-9. Marseille, FR
-10. Sydney, AU
+## 📦 專案結構圖
 
-## 資料流架構
-
+```text
+├── app
+├── core
+│   ├── common       # Dispatchers, Result, UiError
+│   ├── network      # Retrofit, ApiService, DTOs
+│   └── database     # Room, DAOs, Entities
+└── feature
+    └── forecast     # Weather Feature (MVI + Clean Architecture)
+        ├── domain   # Use Cases, Models, Repositories
+        ├── data     # RepositoryImpl, Mappers, LocalData
+        └── presentation # UI (Compose), ViewModel (MVI)
 ```
-┌─────────────┐     Intent      ┌─────────────────┐
-│   Compose   │ ───────────────>│                 │
-│     UI      │                 │  ViewModel      │
-│             │ <───────────────│                 │
-└─────────────┘     State       └────────┬────────┘
-     ^                                     │
-     │ Effect                              │ UseCase
-     │                                     ▼
-     │                            ┌─────────────────┐
-     │                            │   Repository    │
-     │                            │   Interface     │
-     │                            └────────┬────────┘
-     │                                     │
-     │                              ┌──────┴──────┐
-     │                              ▼             ▼
-     │                      ┌──────────┐    ┌──────────┐
-     │                      │  Remote  │    │   Cache  │
-     │                      │   API    │    │  (Room)  │
-     │                      └──────────┘    └──────────┘
-     │
-     └──────────────────────────────────────────────
-```
+
+---
 
 ## 授權
-
 MIT License

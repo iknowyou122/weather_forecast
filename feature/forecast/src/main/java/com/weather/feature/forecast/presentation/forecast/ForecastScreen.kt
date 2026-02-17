@@ -1,5 +1,7 @@
 package com.weather.feature.forecast.presentation.forecast
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
@@ -39,9 +42,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +131,9 @@ private fun ForecastTopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onCityClick)
             ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
@@ -200,53 +211,97 @@ private fun ForecastContent(
 private fun TodayWeatherCard(forecast: ForecastUi) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF4A90E2), // Sky Blue
+                            Color(0xFF005C97)  // Deep Blue
+                        )
+                    )
+                )
         ) {
-            Text(
-                text = forecast.current.condition,
-                style = MaterialTheme.typography.headlineSmall
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    forecast.current.iconCode?.let { icon ->
+                        AsyncImage(
+                            model = "https://openweathermap.org/img/wn/$icon@4x.png",
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    }
+                    Text(
+                        text = forecast.current.condition,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "${forecast.current.tempC}°",
-                style = MaterialTheme.typography.displayLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "最高 ${forecast.current.tempMaxC}° / 最低 ${forecast.current.tempMinC}°",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            forecast.current.humidityPct?.let { humidity ->
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "濕度: $humidity%",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
 
-            forecast.current.windSpeedMs?.let { wind ->
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "風速: ${"%.1f".format(wind)} m/s",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "${forecast.current.tempC}°",
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 80.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.White
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "H: ${forecast.current.tempMaxC}°  L: ${forecast.current.tempMinC}°",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    forecast.current.humidityPct?.let { humidity ->
+                        WeatherDetailItem(label = "濕度", value = "$humidity%")
+                    }
+                    forecast.current.windSpeedMs?.let { wind ->
+                        WeatherDetailItem(label = "風速", value = "${"%.1f".format(wind)} m/s")
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun WeatherDetailItem(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
@@ -263,7 +318,7 @@ private fun DailyWeatherItem(day: DailyWeatherUi) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1.2f)) {
                 Text(
                     text = day.dayName,
                     style = MaterialTheme.typography.titleMedium
@@ -275,12 +330,24 @@ private fun DailyWeatherItem(day: DailyWeatherUi) {
                 )
             }
 
-            Text(
-                text = day.condition,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+            Row(
+                modifier = Modifier.weight(1.5f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                day.iconCode?.let { icon ->
+                    AsyncImage(
+                        model = "https://openweathermap.org/img/wn/$icon@2x.png",
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                Text(
+                    text = day.condition,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Start
+                )
+            }
 
             Text(
                 text = "${day.tempMaxC}° / ${day.tempMinC}°",
@@ -349,8 +416,9 @@ private fun ErrorContent(
         verticalArrangement = Arrangement.Center
     ) {
         val message = when (error) {
-            is com.weather.core.common.UiError.NetworkUnavailable -> "網路連線失敗"
-            is com.weather.core.common.UiError.HttpError -> "伺服器錯誤 (${error.code})"
+            is com.weather.core.common.UiError.NetworkUnavailable -> "網路連線失敗，請檢查網路設定"
+            is com.weather.core.common.UiError.InvalidApiKey -> "API 金鑰無效或未設定，請在 local.properties 中設定 WEATHER_API_KEY"
+            is com.weather.core.common.UiError.HttpError -> "伺服器錯誤 (${error.code}): ${error.message}"
             is com.weather.core.common.UiError.ParsingError -> "資料解析錯誤"
             is com.weather.core.common.UiError.UnknownError -> "發生錯誤: ${error.message}"
         }
