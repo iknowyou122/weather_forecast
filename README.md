@@ -49,9 +49,12 @@
 ### 1. API Key 設定
 本專案使用 [OpenWeatherMap API](https://openweathermap.org/)。
 
-請在專案根目錄的 `local.properties` 檔案中加入您的金鑰：
+請依照以下步驟設定您的環境：
+1. 在專案根目錄找到 `local.properties.example` 檔案。
+2. 將該檔案**重新命名**為 `local.properties`。
+3. 在 `local.properties` 中填入您的金鑰：
 ```properties
-WEATHER_API_KEY=your_api_key_here
+WEATHER_API_KEY=在此處填入您的_API_KEY
 ```
 
 ### 2. 環境要求
