@@ -1,92 +1,92 @@
 # Weather Forecast App
 
-**Clean Architecture** 與 **MVI (Model-View-Intent)** 設計模式，使用 Kotlin、Jetpack Compose 建置的現代化 Android 天氣預報應用程式。
+A modern Android weather forecast application built with **Clean Architecture** and **MVI (Model-View-Intent)** design patterns using Kotlin and Jetpack Compose.
 
 ---
 
-## 🌟 核心功能
+## 🌟 Key Features
 
-### 🌤️ 天氣預報
-- **今日天氣詳情**：顯示目前的溫度、天氣狀況、最高/最低溫、濕度及風速。
-- **7 天氣象預報**：提供未來一週的天氣趨勢，幫助使用者提前規劃。
-- **動態天氣圖示**：透過 **Coil** 庫串接 OpenWeatherMap 官方圖示，視覺化天氣狀況。
+### 🌤️ Weather Forecast
+- **Today's Weather Details**: Displays current temperature, weather conditions, high/low temperatures, humidity, and wind speed.
+- **7-Day Forecast**: Provides weather trends for the upcoming week to help users plan ahead.
+- **Dynamic Weather Icons**: Visualizes weather conditions using official OpenWeatherMap icons integrated via the **Coil** library.
 
-### 🏙️ 城市管理
-- **多城市支援**：預設提供全球 10+ 個熱門城市（台北、東京、倫敦等）。
-- **即時搜尋**：支援城市名稱搜尋，快速切換感興趣的地點。
+### 🏙️ City Management
+- **Multi-city Support**: Pre-configured with 10+ major global cities (Taipei, Tokyo, London, etc.).
+- **Real-time Search**: Supports searching by city name to quickly switch between locations of interest.
 
-### 🔋 效能
-- **離線優先 (Offline-first)**：利用 **Room** 資料庫實作快取機制，在無網路環境下仍能查看最後更新的資料。
-- **錯誤處理機制**：針對 API Key 缺失、網路斷線等異常提供精確的 UI 提示與重試功能。
+### 🔋 Performance & Reliability
+- **Offline-first**: Implements a caching mechanism using **Room** database to allow viewing the last updated data even without an internet connection.
+- **Error Handling**: Provides precise UI prompts and retry functionality for exceptions such as missing API keys or network disconnections.
 
-### 🎨 UI
-- **Material 3**：全面採用 Material Design 3 規範與組件。
-- **視覺優化**：主畫面採用 **漸層背景** (Linear Gradient) 營造天空感，並搭配 **Glassmorphism** 設計提升視覺層次。
+### 🎨 User Interface
+- **Material 3**: Fully adopts Material Design 3 specifications and components.
+- **Visual Optimization**: The main screen features a **Linear Gradient** background to create a sky-like feel, paired with **Glassmorphism** design to enhance visual depth.
 
 ---
 
-## 🛠️ 技術架構
+## 🛠️ Technical Architecture
 
-本專案嚴格遵循 **Clean Architecture**，將程式碼切分為獨立的模組，確保高度的可測試性與可維護性。
+This project strictly follows **Clean Architecture**, dividing the code into independent modules to ensure high testability and maintainability.
 
-### 模組切分
-- **`:app`**：應用程式入口，處理 Hilt 注入與導航管理。
+### Module Breakdown
+- **`:app`**: Application entry point, handling Hilt injection and navigation management.
 - **`:core`**
-    - `network`: Retrofit 配置、API 定義與 DTO。
-    - `database`: Room 設定、DAO 與 Entity。
-    - `common`: 共用工具、Dispatcher 提供者與泛型 Result 類。
-- **`:feature:forecast`**：天氣預報核心功能模組，包含完整的 Domain、Data、Presentation 層。
+    - `network`: Retrofit configuration, API definitions, and DTOs.
+    - `database`: Room setup, DAOs, and Entities.
+    - `common`: Shared utilities, Dispatcher providers, and generic Result classes.
+- **`:feature:forecast`**: Core weather forecast feature module, containing complete Domain, Data, and Presentation layers.
 
-### MVI 單向資料流
-- **Intent**: 使用者動作（如 `Refresh`, `SelectCity`）。
-- **State**: UI 狀態的單一來源 (Single Source of Truth)，確保狀態同步。
-- **Effect**: 一次性事件（如 `NavigateToCityList`, `ShowToast`）。
+### MVI Unidirectional Data Flow
+- **Intent**: User actions (e.g., `Refresh`, `SelectCity`).
+- **State**: Single Source of Truth for the UI state, ensuring state synchronization.
+- **Effect**: One-time events (e.g., `NavigateToCityList`, `ShowToast`).
 
 ---
 
-## 🚀 開發與安裝
+## 🚀 Getting Started
 
-### 1. API Key 設定
-本專案使用 [OpenWeatherMap API](https://openweathermap.org/)。
+### 1. API Key Configuration
+This project uses the [OpenWeatherMap API](https://openweathermap.org/).
 
-請依照以下步驟設定您的環境：
-1. 在專案根目錄找到 `local.properties.example` 檔案。
-2. 將該檔案**重新命名**為 `local.properties`。
-3. 在 `local.properties` 中填入您的金鑰：
+Please follow these steps to set up your environment:
+1. Locate the `local.properties.example` file in the project root directory.
+2. **Rename** the file to `local.properties`.
+3. Fill in your API key in `local.properties`:
 ```properties
-WEATHER_API_KEY=在此處填入您的_API_KEY
+WEATHER_API_KEY=your_api_key_here
 ```
 
-### 2. 環境要求
-- **Android Studio**: Hedgehog (2023.1.1+)
+### 2. Environment Requirements
+- **Android Studio**: Hedgehog (2023.1.1+) or newer
 - **JDK**: 17
 - **Gradle**: 8.7.3
 
-### 3. 編譯與執行
+### 3. Build & Run
 ```bash
-# 同步 Gradle 後直接在 Android Studio 點擊 Run
-# 或使用 CLI 編譯
+# After syncing Gradle, click "Run" in Android Studio
+# Or build via CLI
 ./gradlew assembleDebug
 ```
 
 ---
 
-## 🧪 測試涵蓋範圍
+## 🧪 Test Coverage
 
-專案實作了完整的單元測試，涵蓋各個層級的業務邏輯。
+The project implements comprehensive unit tests covering business logic across all layers.
 
-- **Domain 層**：測試 Use Cases 的業務邏輯分支。
-- **Presentation 層**：測試 ViewModel 的狀態機轉換與 Effect 發送。
-- **Data 層**：測試 Repository 的快取策略 (Cache-then-Network) 與異常轉換。
-a
-**執行測試：**
+- **Domain Layer**: Tests business logic branches for Use Cases.
+- **Presentation Layer**: Tests ViewModel state machine transitions and Effect emissions.
+- **Data Layer**: Tests Repository caching strategies (Cache-then-Network) and exception transformations.
+
+**Run Tests:**
 ```bash
 ./gradlew test
 ```
 
 ---
 
-## 📦 專案結構圖
+## 📦 Project Structure
 
 ```text
 ├── app
